@@ -4,21 +4,39 @@ A command-line password generator and manager built in Python.
 
 ## Features
 - Generate strong random passwords
-- Check password strength
-- Save passwords to a file
+- Check password strength (Weak / Medium / Strong / Very Strong)
+- Label passwords by service (Gmail, GitHub, etc.)
+- Save passwords with Fernet encryption
 - View all saved passwords
+- Search passwords by label
+- Delete passwords by label
+
+## Security
+- Passwords are encrypted using Fernet symmetric encryption
+- Encryption key stored locally in secret.key
+- passwords.csv and secret.key are excluded from version control
 
 ## How to Run
 1. Make sure Python is installed
-2. Clone this repository
-3. Run the program:
+2. Clone this repository:
+   git clone https://github.com/ashardrach/SecureVault.git
+3. Install the required library:
+   pip install cryptography
+4. Run the program:
+   python main.py
 
-python main.py
+## Project Structure
+main.py        → main program
+passwords.csv  → encrypted password storage (not uploaded)
+secret.key     → encryption key (not uploaded)
+.gitignore     → protects sensitive files
 
 ## What I Learned
 - Python fundamentals (variables, loops, functions)
-- File handling
-- Cybersecurity concepts around password strength
+- File handling and CSV data storage
+- Fernet encryption and cybersecurity basics
+- Error handling and input validation
+- Git and GitHub workflow
 - Code organization and documentation
 
 ## Built By
