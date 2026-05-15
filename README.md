@@ -10,6 +10,8 @@ A command-line password generator and manager built in Python.
 - View all saved passwords
 - Search passwords by label
 - Delete passwords by label
+- Full GUI with dark theme built with Tkinter
+
 
 ## Security
 - Passwords are encrypted using Fernet symmetric encryption
@@ -38,6 +40,21 @@ secret.key     → encryption key (not uploaded)
 - Error handling and input validation
 - Git and GitHub workflow
 - Code organization and documentation
+
+
+
+
+## How to Run
+1. Make sure Python is installed
+2. Clone this repository:
+   git clone https://github.com/ashardrach/SecureVault.git
+3. Install the required library:
+   pip install cryptography
+4. Run the program:
+   python main.py
+5. A window will open — no terminal needed
+
+
 
 ## Built By
 ashardrach — cybersecurity student learning Python by building real tools.
