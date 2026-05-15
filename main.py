@@ -1,6 +1,7 @@
 import random
 import string
 import os
+import hashlib
 import tkinter as tk
 from tkinter import messagebox
 from cryptography.fernet import Fernet
@@ -24,6 +25,27 @@ def encrypt(text, key):
 def decrypt(text, key):
     f = Fernet(key)
     return f.decrypt(text.encode()).decode()
+
+# ─── Master Password ──────────────────────────────────────
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def save_master(password):
+    with open("master.hash", "w") as file:
+        file.write(hash_password(password))
+
+def load_master():
+    if os.path.exists("master.hash"):
+        with open("master.hash", "r") as file:
+            return file.read()
+    return None
+
+def verify_master(password):
+    stored_hash = load_master()
+    if stored_hash is None:
+        return False
+    return hash_password(password) == stored_hash
 
 # ─── Password Logic ───────────────────────────────────────
 
@@ -91,7 +113,141 @@ def delete_password_by_label(keyword, key):
         file.writelines(updated)
     return deleted
 
-# ─── GUI ──────────────────────────────────────────────────
+# ─── Login Screen ─────────────────────────────────────────
+
+class LoginScreen:
+
+    def __init__(self, root, key):
+        self.root = root
+        self.key = key
+        self.root.title("SecureVault — Login")
+        self.root.geometry("400x350")
+        self.root.resizable(False, False)
+        self.root.configure(bg="#1e1e2e")
+        self.build_ui()
+
+    def build_ui(self):
+        tk.Label(
+            self.root,
+            text="SecureVault 🔐",
+            font=("Helvetica", 22, "bold"),
+            bg="#1e1e2e",
+            fg="#cdd6f4"
+        ).pack(pady=30)
+
+        existing = load_master()
+
+        if existing is None:
+            tk.Label(
+                self.root,
+                text="Welcome! Set your master password:",
+                font=("Helvetica", 11),
+                bg="#1e1e2e",
+                fg="#a6e3a1"
+            ).pack(pady=5)
+        else:
+            tk.Label(
+                self.root,
+                text="Enter your master password:",
+                font=("Helvetica", 11),
+                bg="#1e1e2e",
+                fg="#cdd6f4"
+            ).pack(pady=5)
+
+        self.password_entry = tk.Entry(
+            self.root,
+            width=25,
+            font=("Helvetica", 13),
+            bg="#313244",
+            fg="#cdd6f4",
+            insertbackground="white",
+            relief="flat",
+            show="•"
+        )
+        self.password_entry.pack(pady=10)
+        self.password_entry.focus()
+        self.password_entry.bind("<Return>", lambda e: self.submit())
+
+        if existing is None:
+            tk.Label(
+                self.root,
+                text="Confirm master password:",
+                font=("Helvetica", 11),
+                bg="#1e1e2e",
+                fg="#cdd6f4"
+            ).pack(pady=5)
+
+            self.confirm_entry = tk.Entry(
+                self.root,
+                width=25,
+                font=("Helvetica", 13),
+                bg="#313244",
+                fg="#cdd6f4",
+                insertbackground="white",
+                relief="flat",
+                show="•"
+            )
+            self.confirm_entry.pack(pady=5)
+        else:
+            self.confirm_entry = None
+
+        btn_text = "Set Password" if existing is None else "Unlock Vault"
+
+        tk.Button(
+            self.root,
+            text=btn_text,
+            command=self.submit,
+            bg="#89b4fa",
+            fg="#1e1e2e",
+            font=("Helvetica", 11, "bold"),
+            relief="flat",
+            padx=20,
+            pady=8,
+            cursor="hand2"
+        ).pack(pady=20)
+
+        self.error_label = tk.Label(
+            self.root,
+            text="",
+            font=("Helvetica", 10),
+            bg="#1e1e2e",
+            fg="#f38ba8"
+        )
+        self.error_label.pack()
+
+    def submit(self):
+        password = self.password_entry.get()
+
+        if password == "":
+            self.error_label.config(text="Please enter a password.")
+            return
+
+        existing = load_master()
+
+        if existing is None:
+            confirm = self.confirm_entry.get()
+            if password != confirm:
+                self.error_label.config(text="Passwords do not match.")
+                return
+            if len(password) < 6:
+                self.error_label.config(
+                    text="Master password must be at least 6 characters.")
+                return
+            save_master(password)
+            self.open_vault()
+        else:
+            if verify_master(password):
+                self.open_vault()
+            else:
+                self.error_label.config(text="Incorrect password. Try again.")
+
+    def open_vault(self):
+        self.root.destroy()
+        new_root = tk.Tk()
+        SecureVaultApp(new_root, self.key)
+        new_root.mainloop()
+
+# ─── Main Vault App ───────────────────────────────────────
 
 class SecureVaultApp:
 
@@ -105,8 +261,6 @@ class SecureVaultApp:
         self.build_ui()
 
     def build_ui(self):
-
-        # Title
         tk.Label(
             self.root,
             text="SecureVault 🔐",
@@ -115,11 +269,9 @@ class SecureVaultApp:
             fg="#cdd6f4"
         ).pack(pady=20)
 
-        # Input frame
         input_frame = tk.Frame(self.root, bg="#1e1e2e")
         input_frame.pack(pady=5)
 
-        # Label input
         tk.Label(
             input_frame,
             text="Label (e.g. Gmail):",
@@ -139,7 +291,6 @@ class SecureVaultApp:
         )
         self.label_entry.grid(row=0, column=1, padx=10, pady=8)
 
-        # Length input
         tk.Label(
             input_frame,
             text="Password Length:",
@@ -160,7 +311,6 @@ class SecureVaultApp:
         self.length_entry.insert(0, "16")
         self.length_entry.grid(row=1, column=1, padx=10, pady=8)
 
-        # Generate button
         tk.Button(
             self.root,
             text="Generate Password",
@@ -174,7 +324,6 @@ class SecureVaultApp:
             cursor="hand2"
         ).pack(pady=10)
 
-        # Password display
         self.password_var = tk.StringVar()
         self.password_var.set("Your password will appear here")
 
@@ -189,7 +338,6 @@ class SecureVaultApp:
             wraplength=440
         ).pack(fill="x", padx=30, pady=5)
 
-        # Strength display
         self.strength_var = tk.StringVar()
         self.strength_var.set("")
 
@@ -201,7 +349,6 @@ class SecureVaultApp:
             fg="#f9e2af"
         ).pack()
 
-        # Action buttons
         btn_frame = tk.Frame(self.root, bg="#1e1e2e")
         btn_frame.pack(pady=15)
 
@@ -244,7 +391,6 @@ class SecureVaultApp:
             cursor="hand2"
         ).grid(row=0, column=2, padx=8)
 
-        # Search bar
         search_frame = tk.Frame(self.root, bg="#1e1e2e")
         search_frame.pack(pady=5)
 
@@ -273,7 +419,6 @@ class SecureVaultApp:
             cursor="hand2"
         ).grid(row=0, column=1, padx=8)
 
-        # Password list
         tk.Label(
             self.root,
             text="Saved Passwords",
@@ -355,9 +500,9 @@ class SecureVaultApp:
         for label, password in passwords:
             self.listbox.insert(tk.END, label + "  ->  " + password)
 
-# ─── Start the app ────────────────────────────────────────
+# ─── Start ────────────────────────────────────────────────
 
 key = load_key()
 root = tk.Tk()
-app = SecureVaultApp(root, key)
+app = LoginScreen(root, key)
 root.mainloop()
