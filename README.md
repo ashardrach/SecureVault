@@ -1,60 +1,44 @@
 # SecureVault 🔐
 
-A command-line password generator and manager built in Python.
+A secure desktop password manager built in Python with a full GUI.
 
 ## Features
+- Master password login (SHA256 hashed — never stored in plain text)
 - Generate strong random passwords
 - Check password strength (Weak / Medium / Strong / Very Strong)
 - Label passwords by service (Gmail, GitHub, etc.)
-- Save passwords with Fernet encryption
-- View all saved passwords
-- Search passwords by label
-- Delete passwords by label
-- Full GUI with dark theme built with Tkinter
+- Fernet encryption on all stored passwords
+- View, search and delete saved passwords
+- Professional dark theme GUI built with Tkinter
 
-
-## Security
-- Passwords are encrypted using Fernet symmetric encryption
+## Security Design
+- Master password is hashed with SHA256 — never stored raw
+- Passwords encrypted with Fernet symmetric encryption
 - Encryption key stored locally in secret.key
-- passwords.csv and secret.key are excluded from version control
+- Sensitive files excluded from version control via .gitignore
 
 ## How to Run
 1. Make sure Python is installed
 2. Clone this repository:
    git clone https://github.com/ashardrach/SecureVault.git
-3. Install the required library:
+3. Install required library:
    pip install cryptography
 4. Run the program:
    python main.py
+5. Set your master password on first run
+6. Vault opens after successful login
 
 ## Project Structure
-main.py        → main program
-passwords.csv  → encrypted password storage (not uploaded)
-secret.key     → encryption key (not uploaded)
-.gitignore     → protects sensitive files
+main.py       → full application code
+.gitignore    → protects sensitive files
 
-## What I Learned
-- Python fundamentals (variables, loops, functions)
-- File handling and CSV data storage
-- Fernet encryption and cybersecurity basics
-- Error handling and input validation
-- Git and GitHub workflow
-- Code organization and documentation
-
-
-
-
-## How to Run
-1. Make sure Python is installed
-2. Clone this repository:
-   git clone https://github.com/ashardrach/SecureVault.git
-3. Install the required library:
-   pip install cryptography
-4. Run the program:
-   python main.py
-5. A window will open — no terminal needed
-
-
+## Skills Demonstrated
+- Python (functions, loops, file handling, OOP basics)
+- Cryptography (Fernet encryption, SHA256 hashing)
+- GUI development (Tkinter)
+- Secure coding practices
+- Git and GitHub version control
 
 ## Built By
-ashardrach — cybersecurity student learning Python by building real tools.
+ashardrach — cybersecurity student building real tools.
+GitHub: github.com/ashardrach
